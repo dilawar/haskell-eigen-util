@@ -3,6 +3,7 @@
 module Data.Eigen.Util (
     -- Basic operations
     rowOper 
+    , colOper
     -- creation 
     , fromList'
     -- stacking functions 
@@ -63,3 +64,10 @@ kronecker mat1 mat2 = vstack $ L.map hstack result
 rowOper :: E.Elem a b => Int -> Int -> a -> E.Matrix a b -> E.Matrix a b
 rowOper r1 r2 c mat = E.imap ( 
     \i j v -> if i == r1 then v + c * ( mat E.! (r2,j) ) else v ) mat
+
+-- | colOper 
+-- col c1 = col c1 + c * col c2 
+colOper :: E.Elem a b => Int -> Int -> a -> E.Matrix a b -> E.Matrix a b
+colOper c1 c2 c mat = E.imap ( 
+    \i j v -> if j == c1 then v + c * ( mat E.! (i,c2) ) else v ) mat
+
