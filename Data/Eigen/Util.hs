@@ -1,9 +1,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Data.Eigen.Util (
-    -- Stack list of matrices horizontally
-    hstack
-    -- Stack list of matrices vertically
+    -- Basic operations
+    rowOper 
+    -- creation 
+    , fromList'
+    -- stacking functions 
+    , hstack
     , vstack
     -- Kronecker product of two matrix
     , kronecker
@@ -24,8 +27,8 @@ to2DList n es = row : to2DList n rest
 -- | Alternative implementation of fromList. It accepts a flatten list of
 -- elements and number of columns. 
 -- No tests are performed to check if number of elements in list are sufficient.
-fromList :: E.Elem a b => Int -> [ a ] -> E.Matrix a b
-fromList n elems = E.fromList $ to2DList n elems
+fromList' :: E.Elem a b => Int -> [ a ] -> E.Matrix a b
+fromList' n elems = E.fromList $ to2DList n elems
 
 -- | Stack matrices horizontallly
 hstack :: E.Elem a b => [ E.Matrix a b ] -> E.Matrix a b
@@ -55,3 +58,8 @@ kronecker mat1 mat2 = vstack $ L.map hstack result
     [ (r1,c1), (r2,c2) ] = [ E.dims mat1, E.dims mat2 ]
     (r, c) = ( r1*r2, c1*c2 )
 
+-- | rowOper
+--   row r1 = row r1 + c * row r2
+rowOper :: E.Elem a b => Int -> Int -> a -> E.Matrix a b -> E.Matrix a b
+rowOper r1 r2 c mat = E.imap ( 
+    \i j v -> if i == r1 then v + c * ( mat E.! (r2,j) ) else v ) mat
