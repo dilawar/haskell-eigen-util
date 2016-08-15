@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Data.Eigen.Util
-  build-depends:       base >= 4.7 && < 5
+  build-depends:       base >= 4.7 && < 5, eigen, vector
   default-language:    Haskell2010
 
 test-suite haskell-eigen-util-test
