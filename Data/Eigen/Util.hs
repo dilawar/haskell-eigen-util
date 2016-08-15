@@ -9,6 +9,9 @@ module Data.Eigen.Util (
     -- stacking functions 
     , hstack
     , vstack
+    -- Function to manipulate matrices
+    , delRow 
+    , delCol
     -- Kronecker product of two matrix
     , kronecker
 ) where
@@ -71,3 +74,16 @@ colOper :: E.Elem a b => Int -> Int -> a -> E.Matrix a b -> E.Matrix a b
 colOper c1 c2 c mat = E.imap ( 
     \i j v -> if j == c1 then v + c * ( mat E.! (i,c2) ) else v ) mat
 
+-- TODO: Following two functions are inefficient since they don't manipulate
+-- matrix in place.
+-- | delete a row 
+delRow :: E.Elem a b => Int -> E.Matrix a b -> E.Matrix a b
+delRow r mat = E.fromList $ deleteAt r $ E.toList mat
+
+-- Utility function to delete an element from the at index n
+deleteAt :: Int -> [a] -> [a]
+deleteAt n ls = let (ys,zs) = L.splitAt n ls in ys L.++ (L.tail zs)
+
+-- | delete a column
+delCol :: E.Elem a b => Int -> E.Matrix a b -> E.Matrix a b
+delCol c mat = E.fromList $ L.map (\row -> deleteAt c row) $ E.toList mat
