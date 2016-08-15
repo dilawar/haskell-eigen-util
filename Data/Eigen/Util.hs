@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Data.Eigen.Util (
     -- Stack list of matrices horizontally
     hstack
@@ -12,6 +14,18 @@ import Data.Maybe (fromJust)
 import Data.List as L
 import Data.Vector.Storable as V
 
+-- | to2DList turns a 1-d list to 2D list.
+-- to2DList :: E.Elem a b => Int -> [ b ] -> [[ b ]]
+to2DList _ [] = []
+to2DList n es = row : to2DList n rest
+  where
+    ( row, rest ) = L.splitAt n es
+
+-- | Alternative implementation of fromList. It accepts a flatten list of
+-- elements and number of columns. 
+-- No tests are performed to check if number of elements in list are sufficient.
+fromList :: E.Elem a b => Int -> [ a ] -> E.Matrix a b
+fromList n elems = E.fromList $ to2DList n elems
 
 -- | Stack matrices horizontallly
 hstack :: E.Elem a b => [ E.Matrix a b ] -> E.Matrix a b
@@ -37,14 +51,7 @@ vstack mats = E.transpose $ hstack $ L.map E.transpose mats
 -- | Kronecker matric multiplication.
 kronecker mat1 mat2 = vstack $ L.map hstack result
   where
-    result = listToMat c1 $ E.fold' ( \c e -> ((E.map (*e) mat2):c) ) [] mat1 
+    result = to2DList c1 $ E.fold' ( \c e -> ((E.map (*e) mat2):c) ) [] mat1 
     [ (r1,c1), (r2,c2) ] = [ E.dims mat1, E.dims mat2 ]
     (r, c) = ( r1*r2, c1*c2 )
-
-    -- Give a flatten list the structure of matrix.
-    listToMat _ [] = []
-    listToMat ncols xs = row : listToMat ncols rest 
-      where
-        ( row, rest ) = L.splitAt ncols xs
-
 
