@@ -2,13 +2,13 @@ name:                haskell-eigen-util
 version:             0.1.0.0
 synopsis:            Some utility functions for haskell-eigen library
 description:         Please see README.md
-homepage:            https://github.com/dilawar/haskell-eigen-util#Readme.md
+homepage:            https://github.com/dilawar/haskell-eigen-util#README.md
 license:             BSD3
 license-file:        LICENSE
 author:              Dilawar Singh
 maintainer:          dilawars@ncbs.res.in
 copyright:           2016 Dilawar Singh
-category:            Math
+category:            Math, Algebra
 build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
