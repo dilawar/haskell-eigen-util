@@ -2,8 +2,10 @@
 
 module Data.Eigen.Util (
     -- Basic operations
-    rowOper 
-    , colOper
+    rowAdd 
+    , colAdd 
+    , rowScale
+    , colScale
     -- creation 
     , fromList'
     -- stacking functions 
@@ -64,17 +66,25 @@ kronecker mat1 mat2 = vstack $ L.map hstack result
     [ (r1,c1), (r2,c2) ] = [ E.dims mat1, E.dims mat2 ]
     (r, c) = ( r1*r2, c1*c2 )
 
--- | rowOper
---   row r1 = c1 * row r1 + c2 * row r2
-rowOper :: E.Elem a b => Int -> Int -> a -> a -> E.Matrix a b -> E.Matrix a b
-rowOper r1 r2 c1 c2 mat = E.imap ( 
-    \i j v -> if i == r1 then c1 * v + c2 * ( mat E.! (r2,j) ) else v ) mat
+-- | rowAdd
+--   row r1 = k1 * row r1 + k2 * row r2
+rowAdd :: E.Elem a b => (a, Int) -> (a,  Int) -> E.Matrix a b -> E.Matrix a b
+rowAdd (k1,r1) (k2,r2) mat = E.imap ( 
+    \i j v -> if i == r1 then k1 * v + k2 * ( mat E.! (r2,j) ) else v ) mat
 
--- | colOper 
+-- | colAdd 
 -- col c1 = k1 * col c1 + k2 * col c2 
-colOper :: E.Elem a b => Int -> Int -> a -> a -> E.Matrix a b -> E.Matrix a b
-colOper c1 c2 k1 k2 mat = E.imap ( 
+colAdd :: E.Elem a b => (a, Int) -> (a, Int ) -> E.Matrix a b -> E.Matrix a b
+colAdd (k1, c1) (k2, c2) mat = E.imap ( 
     \i j v -> if j == c1 then k1 * v + k2 * ( mat E.! (i,c2) ) else v ) mat
+
+-- | scale a row by a factor
+rowScale :: E.Elem a b => Int -> a -> E.Matrix a b -> E.Matrix a b
+rowScale row c mat = E.imap ( \i j v -> if i == row then c * v else v ) mat
+
+-- | scale a column by a factor
+colScale :: E.Elem a b => Int -> a -> E.Matrix a b -> E.Matrix a b
+colScale col c mat = E.imap ( \i j v -> if j == col then c * v else v ) mat
 
 -- TODO: Following two functions are inefficient since they don't manipulate
 -- matrix in place.
