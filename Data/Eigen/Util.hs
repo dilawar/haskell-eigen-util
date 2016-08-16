@@ -4,8 +4,8 @@ module Data.Eigen.Util (
     -- Basic operations
     rowAdd 
     , colAdd 
-    , rowScale
-    , colScale
+    , scaleRow
+    , scaleCol
     -- creation 
     , fromList'
     -- stacking functions 
@@ -79,12 +79,12 @@ colAdd (k1, c1) (k2, c2) mat = E.imap (
     \i j v -> if j == c1 then k1 * v + k2 * ( mat E.! (i,c2) ) else v ) mat
 
 -- | scale a row by a factor
-rowScale :: E.Elem a b => Int -> a -> E.Matrix a b -> E.Matrix a b
-rowScale row c mat = E.imap ( \i j v -> if i == row then c * v else v ) mat
+scaleRow :: E.Elem a b => Int -> a -> E.Matrix a b -> E.Matrix a b
+scaleRow row c mat = E.imap ( \i j v -> if i == row then c * v else v ) mat
 
 -- | scale a column by a factor
-colScale :: E.Elem a b => Int -> a -> E.Matrix a b -> E.Matrix a b
-colScale col c mat = E.imap ( \i j v -> if j == col then c * v else v ) mat
+scaleCol :: E.Elem a b => Int -> a -> E.Matrix a b -> E.Matrix a b
+scaleCol col c mat = E.imap ( \i j v -> if j == col then c * v else v ) mat
 
 -- TODO: Following two functions are inefficient since they don't manipulate
 -- matrix in place.
