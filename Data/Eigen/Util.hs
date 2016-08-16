@@ -11,7 +11,9 @@ module Data.Eigen.Util (
     , vstack
     -- Function to manipulate matrices
     , delRow 
+    , delRows
     , delCol
+    , delCols
     -- Kronecker product of two matrix
     , kronecker
 ) where
@@ -63,16 +65,16 @@ kronecker mat1 mat2 = vstack $ L.map hstack result
     (r, c) = ( r1*r2, c1*c2 )
 
 -- | rowOper
---   row r1 = row r1 + c * row r2
-rowOper :: E.Elem a b => Int -> Int -> a -> E.Matrix a b -> E.Matrix a b
-rowOper r1 r2 c mat = E.imap ( 
-    \i j v -> if i == r1 then v + c * ( mat E.! (r2,j) ) else v ) mat
+--   row r1 = c1 * row r1 + c2 * row r2
+rowOper :: E.Elem a b => Int -> Int -> a -> a -> E.Matrix a b -> E.Matrix a b
+rowOper r1 r2 c1 c2 mat = E.imap ( 
+    \i j v -> if i == r1 then c1 * v + c2 * ( mat E.! (r2,j) ) else v ) mat
 
 -- | colOper 
--- col c1 = col c1 + c * col c2 
-colOper :: E.Elem a b => Int -> Int -> a -> E.Matrix a b -> E.Matrix a b
-colOper c1 c2 c mat = E.imap ( 
-    \i j v -> if j == c1 then v + c * ( mat E.! (i,c2) ) else v ) mat
+-- col c1 = k1 * col c1 + k2 * col c2 
+colOper :: E.Elem a b => Int -> Int -> a -> a -> E.Matrix a b -> E.Matrix a b
+colOper c1 c2 k1 k2 mat = E.imap ( 
+    \i j v -> if j == c1 then k1 * v + k2 * ( mat E.! (i,c2) ) else v ) mat
 
 -- TODO: Following two functions are inefficient since they don't manipulate
 -- matrix in place.
@@ -87,3 +89,17 @@ deleteAt n ls = let (ys,zs) = L.splitAt n ls in ys L.++ (L.tail zs)
 -- | delete a column
 delCol :: E.Elem a b => Int -> E.Matrix a b -> E.Matrix a b
 delCol c mat = E.fromList $ L.map (\row -> deleteAt c row) $ E.toList mat
+
+-- | delete list of given rows
+delRows :: E.Elem a b => [ Int ] -> E.Matrix a b -> E.Matrix a b
+delRows rows mat = delRows' (L.sort rows) mat 
+  where 
+    delRows' [] mat = mat
+    delRows' (r:rs) mat = delRows' (L.map (\e->e-1) rs) (delRow r mat) 
+
+-- | delete list of given columns
+delCols :: E.Elem a b => [ Int ] -> E.Matrix a b -> E.Matrix a b
+delCols cols mat = delCols' (L.sort cols) mat 
+  where 
+    delCols' [] mat = mat
+    delCols' (c:cs) mat = delCols' (L.map (\e->e-1) cs) (delCol c mat) 
