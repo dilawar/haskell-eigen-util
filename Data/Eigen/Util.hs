@@ -4,7 +4,9 @@ module Data.Eigen.Util (
     -- | Basic operations on rows and columns on rows and columns on rows and
     -- columns on rows and columns
     rowAdd 
+    , rowsAdd
     , colAdd 
+    , colsAdd 
     , scaleRow
     , scaleCol
     -- | Matrix creation from list 
@@ -68,15 +70,29 @@ kronecker mat1 mat2 = vstack $ L.map hstack result
     [ (r1,c1), (r2,c2) ] = [ E.dims mat1, E.dims mat2 ]
     (r, c) = ( r1*r2, c1*c2 )
 
--- | rowAdd row r1 = k1 * row r1 + k2 * row r2
-rowAdd :: E.Elem a b => (a, Int) -> (a,  Int) -> E.Matrix a b -> E.Matrix a b
-rowAdd (k1,r1) (k2,r2) mat = E.imap ( 
-    \i j v -> if i == r1 then k1 * v + k2 * ( mat E.! (r2,j) ) else v ) mat
+-- | rowAdd r1 = r1 + k * r2
+rowAdd :: E.Elem a b => Int -> (a,  Int) -> E.Matrix a b -> E.Matrix a b
+rowAdd r1 (k,r2) mat = E.imap ( 
+    \i j v -> if i == r1 then v + k * ( mat E.! (r2,j) ) else v ) mat
 
--- | colAdd col c1 = k1 * col c1 + k2 * col c2 
-colAdd :: E.Elem a b => (a, Int) -> (a, Int ) -> E.Matrix a b -> E.Matrix a b
-colAdd (k1, c1) (k2, c2) mat = E.imap ( 
-    \i j v -> if j == c1 then k1 * v + k2 * ( mat E.! (i,c2) ) else v ) mat
+-- | colAdd c1 = c1 + k * c2
+colAdd :: E.Elem a b => Int -> (a, Int ) -> E.Matrix a b -> E.Matrix a b
+colAdd c1 (k, c2) mat = E.imap ( 
+    \i j v -> if j == c1 then v + k * ( mat E.! (i,c2) ) else v ) mat
+
+{- | Adds a list of given columns with a list weights to the first column in the list. 
+ - Note that first value in the list of weights is ignored 
+ -}
+colsAdd :: E.Elem a b => [ Int ] -> [ a ] -> E.Matrix a b -> E.Matrix a b
+colsAdd (c:[]) _ m = m
+colsAdd (c:c1:cols) (w:w1:ws) m = colsAdd (c:cols) (w:ws) $ colAdd c (w1,c1) m
+
+{- | Adds a list of given rows with a list weights to the first row in the list. 
+ - Note that first value in the list of weights is ignored 
+ -}
+rowsAdd :: E.Elem a b => [ Int ] -> [ a ] -> E.Matrix a b -> E.Matrix a b
+rowsAdd (r:[]) _ m = m
+rowsAdd (r:r1:rows) (w:w1:ws) m = rowsAdd (r:rows) (w:ws) $ rowAdd r (w1,r1) m
 
 -- | scale a row by a factor
 scaleRow :: E.Elem a b => Int -> a -> E.Matrix a b -> E.Matrix a b
@@ -86,7 +102,7 @@ scaleRow row c mat = E.imap ( \i j v -> if i == row then c * v else v ) mat
 scaleCol :: E.Elem a b => Int -> a -> E.Matrix a b -> E.Matrix a b
 scaleCol col c mat = E.imap ( \i j v -> if j == col then c * v else v ) mat
 
--- Utility function to delete an element from the at index n
+-- Utility function to delete given element from the list
 deleteAt :: Int -> [a] -> [a]
 deleteAt n ls = let (ys,zs) = L.splitAt n ls in ys L.++ (L.tail zs)
 
