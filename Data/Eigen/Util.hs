@@ -21,12 +21,15 @@ module Data.Eigen.Util (
     , delCols
     -- | Kronecker product of two matrix
     , kronecker
+    -- | Display matrix 
+    , pprint
 ) where
 
 import Data.Eigen.Matrix as E
 import Data.Maybe (fromJust)
 import Data.List as L
 import Data.Vector.Storable as V
+import Text.Printf (printf, PrintfArg)
 
 -- | to2DList turns a 1-d list to 2D list.
 to2DList _ [] = []
@@ -128,3 +131,11 @@ delCols cols mat = delCols' (L.sort cols) mat
   where 
     delCols' [] mat = mat
     delCols' (c:cs) mat = delCols' (L.map (\e->e-1) cs) (delCol c mat) 
+
+-- | Pretty print the matrix
+pprint :: (PrintfArg a,  E.Elem a b) => E.Matrix a b -> String 
+pprint mat = L.unlines $ 
+    -- construct each row
+    L.map (\i -> L.unwords $ L.map (\e -> printf "%f" e) (E.row i mat)) $
+    -- all rows
+    L.take (E.rows mat) [0,1..]
