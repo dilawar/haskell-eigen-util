@@ -23,6 +23,7 @@ module Data.Eigen.Util (
     , kronecker
     -- | Display matrix 
     , pprint
+    , pprintIO
 ) where
 
 import Data.Eigen.Matrix as E
@@ -69,7 +70,7 @@ vstack mats = E.transpose $ hstack $ L.map E.transpose mats
 -- | Kronecker matric multiplication.
 kronecker mat1 mat2 = vstack $ L.map hstack result
   where
-    result = to2DList c1 $ E.fold' ( \c e -> ((E.map (*e) mat2):c) ) [] mat1 
+    result = to2DList c1 $ L.reverse $ E.fold ( \c e -> ((E.map (*e) mat2):c) ) [] mat1 
     [ (r1,c1), (r2,c2) ] = [ E.dims mat1, E.dims mat2 ]
     (r, c) = ( r1*r2, c1*c2 )
 
@@ -136,6 +137,11 @@ delCols cols mat = delCols' (L.sort cols) mat
 pprint :: (PrintfArg a,  E.Elem a b) => E.Matrix a b -> String 
 pprint mat = L.unlines $ 
     -- construct each row
-    L.map (\i -> L.unwords $ L.map (\e -> printf "%f" e) (E.row i mat)) $
+    L.map (\i -> L.unwords $ L.map (\e -> printf "%.5f" e) (E.row i mat)) $
     -- all rows
     L.take (E.rows mat) [0,1..]
+
+-- | print matrix in IO monad
+pprintIO :: (PrintfArg a, E.Elem a b) => E.Matrix a b -> IO () 
+pprintIO mat = do 
+    putStrLn $ pprint mat
