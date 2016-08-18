@@ -68,7 +68,7 @@ vstack :: E.Elem a b => [ E.Matrix a b ] -> E.Matrix a b
 vstack mats = E.transpose $ hstack $ L.map E.transpose mats
 
 -- | Kronecker matric multiplication.
-kronecker mat1 mat2 = vstack $ L.map hstack result
+kronecker mat1 mat2 = E.transpose $ vstack $ L.map hstack result
   where
     result = to2DList c1 $ L.reverse $ E.fold ( \c e -> ((E.map (*e) mat2):c) ) [] mat1 
     [ (r1,c1), (r2,c2) ] = [ E.dims mat1, E.dims mat2 ]

@@ -1,5 +1,5 @@
 name:                haskell-eigen-util
-version:             0.1.0.3
+version:             0.1.0.4
 synopsis:            Some utility functions for haskell-eigen library
 description:         Please see README.md
 homepage:            https://github.com/dilawar/haskell-eigen-util#README.md

@@ -1,11 +1,10 @@
-
 import qualified Data.Eigen.Matrix as E
 import Data.Eigen.Util
 
 testKronecker m1 m2 = kronecker m1 m2
 
-mat1 = E.fromList [ [0.85, 0.15], [0.1, 0.9] ] :: E.MatrixXd 
-mat2 = E.fromList [ [0.8, 0.2], [0.05, 0.95] ] :: E.MatrixXd 
+mat1 = E.fromList [ [1, 2], [3, 4] ] :: E.MatrixXd 
+mat2 = E.fromList [ [5, 6], [7, 8] ] :: E.MatrixXd 
 
 main :: IO ()
 main = do 
@@ -13,5 +12,5 @@ main = do
     pprintIO mat2
     let res = kronecker mat1 mat2
     {-pprintIO res-}
-    print $ res
+    print res
     putStrLn "All done"
